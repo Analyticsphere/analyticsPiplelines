@@ -1,24 +1,20 @@
----
----
----
-
 # Example R Analytics Pipeline:
 
 ## using Plumber, Cloud Build, Cloud Run and Cloud Scheduler
 
 ### **Objectives:**
 
-1.  [Write R script as a plumber API]
+1.  Write R script as a plumber API
 
-2.  [Build a container image]
+2.  Build a container image
 
-3.  [Schedule the cloud run]
+3.  Schedule the cloud run
 
-4.  [Push data from GCP Cloud Storage Bucket to Box]
+4.  Push data from GCP Cloud Storage Bucket to Box
 
 This repo holds files requires to run a containerized R script, using docker, cloud build and cloud run. It is based on Daniel Russ's CloudRun_QAQC example.
 
-### Write R script as a plumber API
+### 1. Write R script as a plumber API
 
 -   **test_api.r** is a R file containing your plumber API and R function. Below is an example:
 
@@ -55,7 +51,7 @@ function() {
 }
 ```
 
-### Build a container image
+### 2. Build a container image
 
 **cloudbuild.yaml** is a build config file that lists instructions for Cloud Build to build a container image, push the container image to a Container Registry on GCP, and deploy the container image to cloud run. For more information on build config files, see this [GCP reference page](https://cloud.google.com/build/docs/build-config-file-schema).
 
@@ -120,10 +116,10 @@ function() {
     # Copy output folder to gcp bucket **THIS NEEDS TO BE TESTED, NOT SURE IF IT SHOULD BE HERE.
     RUN gsutil cp --recursive output/ gs://test_analytics_bucket_jp/$(date +"%d-%m-%Y-%H-%M-%S")/
 
-### Schedule the Cloud Run
+### 3. Schedule the Cloud Run
 
 -   ToDo
 
-### Push data from GCP Cloud Storage Bucket to Box
+### 4. Push data from GCP Cloud Storage Bucket to Box
 
 -   ToDo
