@@ -66,7 +66,7 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
     -   Replace `test-api` with the api that you have configured on gcp,
 
-    -   Replace `qa-qc-stage@nih-nci-dceg-connect-stg-5519.iam.gserviceaccount.com` with the name of your service account, for example "qa-qc-stage"
+    -   Replace `qa-qc-stage@nih-nci-dceg-connect-stg-5519.iam.gserviceaccount.com` with the name of your service account
 
 <!-- -->
 
