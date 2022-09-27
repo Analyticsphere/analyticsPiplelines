@@ -2,17 +2,17 @@
 
 ## using Plumber, Cloud Build, Cloud Run and Cloud Scheduler
 
+This repo holds files requires to run a containerized R script, using docker, cloud build and cloud run. It uses docker and yaml files based on Daniel Russ's CloudRun_QAQC example.
+
 ### **Objectives:**
 
 1.  Write R script as a plumber API
 
 2.  Build a container image
 
-3.  Schedule the cloud run
+3.  Schedule or trigger the cloud run
 
 4.  Push data from GCP Cloud Storage Bucket to Box
-
-This repo holds files requires to run a containerized R script, using docker, cloud build and cloud run. It is based on Daniel Russ's CloudRun_QAQC example.
 
 ### 1. Write R script as a plumber API
 
@@ -58,13 +58,15 @@ function() {
 
 ### 2. Build a container image
 
-**cloudbuild.yaml** is a build config file that lists instructions for Cloud Build to build a container image, push the container image to a Container Registry on GCP, and deploy the container image to cloud run. For more information on build config files, see this [GCP reference page](https://cloud.google.com/build/docs/build-config-file-schema).
+Building a container image requires 2 files. A cloud build config file (ex, *cloudbuild.yaml*) and a docker file (ex, *Dockerfile*).
 
--   Replace *nih-nci-dceg-connect-stg-5519* with your gcp project id
+-   **cloudbuild.yaml** is a build config file that lists instructions for Cloud Build to build a container image, push the container image to a Container Registry on GCP, and deploy the container image to cloud run. For more information on build config files, see this [GCP reference page](https://cloud.google.com/build/docs/build-config-file-schema).
 
--   Replace *test-api* with the api that you have configured on gcp,
+    -   Replace `nih-nci-dceg-connect-stg-5519` with your gcp project id
 
--   Replace *your_service_account* with the name of your service account, for example "qa-qc-stage"
+    -   Replace `test-api` with the api that you have configured on gcp,
+
+    -   Replace `qa-qc-stage@nih-nci-dceg-connect-stg-5519.iam.gserviceaccount.com` with the name of your service account, for example "qa-qc-stage"
 
 <!-- -->
 
@@ -102,7 +104,7 @@ function() {
 
     -   *`ENTRYPOINT ["R",`* ... calls a plumber method using R. Be sure to change \<your_api.r\> to the name of your R file. Run R code. Code must use plumber API commands and be inside of a function.
 
-    -   *`RUN gsutil cp` ...* Copies all of the files in the "output" folder of the instance to folder in a Google Storage Bucket named *test_analytics_bucket_jp*. The directory in the bucket is given a unique time stamp. For more information about running `gcloud` and `gsutil` commands within Cloud Run, look [here](https://cloud.google.com/run/docs/tutorials/gcloud).
+    -   *`RUN gsutil cp` ...* Copies all of the files in the "output" folder of the instance to folder in a Google Storage Bucket named *test_analytics_bucket_jp*. The directory in the bucket is given a unique time stamp. For more information about running `gcloud` and `gsutil` commands within Cloud Run, look [here](https://cloud.google.com/run/docs/tutorials/gcloud). For more information about setting up a Google Storage Bucket, look [here](https://cloud.google.com/storage/docs/discover-object-storage-console). *test_analytics_bucket_jp* is a bucket that I made for this example.
 
 <!-- -->
 
@@ -121,10 +123,46 @@ function() {
     # Copy output folder to gcp bucket **THIS NEEDS TO BE TESTED, NOT SURE IF IT SHOULD BE HERE.
     RUN gsutil cp --recursive output/ gs://test_analytics_bucket_jp/$(date +"%d-%m-%Y-%H-%M-%S")/
 
-### 3. Schedule the Cloud Run
+### 3. Schedule or Trigger the Cloud Run
 
 -   ToDo
+
+    -   Notes:
+
+        -   Workflows: <https://cloud.google.com/workflows/docs/controlling-execution-order>
+
+        -   Scheduler: <https://cloud.google.com/run/docs/execute/jobs-on-schedule#console>
+
+        -   Trigger:
 
 ### 4. Push data from GCP Cloud Storage Bucket to Box
 
 -   ToDo
+
+-   Notes:
+
+    -   Can move data from Google Drive to Box: <https://support.box.com/hc/en-us/articles/7900885766163-Migrating-content-from-Google-Drive-to-Box>
+
+### Notes:
+
+It is also possible to do all of this using R libraries.
+
+-   Tutorials:
+
+    -   [Automate R script in the Cloud](https://medium.com/@damiencaillet/automate-r-code-in-the-cloud-89266910cc36){style="color: blue; font-style: italic"} by Damien Caillet
+
+    -   [An ELT from scratch with googleCloudRunner, Docker, GCP and R](https://www.davidsolito.com/post/2021-05-30-an-elt-from-scratch-with-googlecloudrunner-docker-google-cloud-platform-and-r/) by R package build
+
+    -   [Run R Code on a Schedule](https://code.markedmondson.me/googleCloudRunner/articles/usecase-scheduled-r-builds.html) by Mark Edmonson
+
+    -   [Generating Dockerfiles for reproducible research with R](https://o2r.info/2017/05/30/containerit-package/) by Daniel Nust, Mathias Hinz
+
+-   YouTube:
+
+    -   [Complete Set Up Guide for googleCloudRunner - configuring the GCP console and your R environment](https://youtu.be/RrYrMsoIXsw) by Mark Edmondson
+
+    -   [Schedule an RMarkdown (Rmd) file and host in the Google Cloud - googleCloudRunner](https://youtu.be/BainmerWVb0) by Mark Edmondson
+
+-   Useful Links:
+
+    -   <https://code.markedmondson.me/googleCloudRunner/>
