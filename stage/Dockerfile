@@ -13,4 +13,4 @@ RUN mkdir -p /output
 ENTRYPOINT ["R", "-e","pr <- plumber::plumb('api.R'); pr$run(host='0.0.0.0', port=as.numeric(Sys.getenv('PORT')))"]
 
 # Copy output folder to gcp bucket **THIS NEEDS TO BE TESTED, NOT SURE IF IT SHOULD BE HERE.
-RUN gsutil cp --recursive output/ gs://test_analytics_bucket_jp/$(date +"%d-%m-%Y-%H-%M-%S")/
+# RUN gsutil cp --recursive output/ gs://test_analytics_bucket_jp/$(date +"%d-%m-%Y-%H-%M-%S")/

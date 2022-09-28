@@ -129,11 +129,23 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
     -   Notes:
 
-        -   Workflows: <https://cloud.google.com/workflows/docs/controlling-execution-order>
+        -   Workflows:
 
-        -   Scheduler: <https://cloud.google.com/run/docs/execute/jobs-on-schedule#console>
+            -   <https://cloud.google.com/workflows/docs/controlling-execution-order>
 
-        -   Trigger:
+        -   Scheduler:
+
+            -   <https://cloud.google.com/run/docs/execute/jobs-on-schedule#console>
+
+            -   <https://cloud.google.com/run/docs/triggering/using-scheduler>
+
+        -   Trigger with GitHub:
+
+            -   
+
+        -   Trigger with Table Event:
+
+            -   <https://cloud.google.com/blog/topics/developers-practitioners/how-trigger-cloud-run-actions-bigquery-events>
 
 ### 4. Push data from GCP Cloud Storage Bucket to Box
 
