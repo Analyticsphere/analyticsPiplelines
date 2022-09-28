@@ -3,14 +3,14 @@
 library(bigrquery)
 library(gridExtra)
 
-# #* heartbeat...for testing purposes only. Not required to run analysis.
-# #* @get /
-# #* @post /
-# function(){return("alive")}
-# 
-# #* Runs STAGE test script
-# #* @get /test_api
-# function() {
+#* heartbeat...for testing purposes only. Not required to run analysis.
+#* @get /
+#* @post /
+function(){return("alive")}
+
+#* Runs STAGE test script
+#* @get /test_api
+function() {
 
   # Change project and billing info as needed.
   project = "nih-nci-dceg-connect-stg-5519"  

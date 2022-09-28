@@ -20,9 +20,8 @@ This repo holds files requires to run a containerized R script, using docker, cl
 
 ```{r}
 # test_api.r
-
+  
 library(bigrquery)
-library(plumber)
 library(gridExtra)
 
 #* heartbeat...for testing purposes only. Not required to run analysis.
@@ -31,28 +30,47 @@ library(gridExtra)
 function(){return("alive")}
 
 #* Runs STAGE test script
-#* @get /qaqc
+#* @get /test_api
 function() {
-  
+
   # Change project and billing info as needed.
   project = "nih-nci-dceg-connect-stg-5519"  
-  billing= "nih-nci-dceg-connect-stg-5519"
+  billing = "nih-nci-dceg-connect-stg-5519"
+  
+  # Designate bucket name (bucket must exist in GCP project) 
+  bucket_name   <- 'test_analytics_bucket_jp' 
+  output_folder <- 'output' # Do not change this! Must correspond to Dockerfile.
   
   # Simple query.
   queryrec <- "SELECT 117249500 AS RcrtUP_Age_v1r0 
-  FROM `nih-nci-dceg-connect-prod-6d04.Connect.participants` where Connect_ID IS NOT NULL"
-  
+               FROM `nih-nci-dceg-connect-prod-6d04.Connect.participants` 
+               WHERE Connect_ID IS NOT NULL"
   # BigQuery authorization. Should work smoothly on GCP without any inputs.
   bq_auth() 
-  
   # Download some data
   rec_data <- bq_table_download(rec_table, bigint = "integer64")
-  test_report_table <- head(rec_data) # Get just the top few lines of the table.
+  t <- head(rec_data) # Get just the top few lines of the table.
   
-  # Write a table to pdf as an example "report".
-  pdf('report_table.pdf')
-  grid.table(test_report_table)
-  dev.off()
+  # Write a table to pdf as an example "report". 
+  # Must include path to output folder in file name
+  report_name = '/output/report_table.pdf'
+  pdf(report_name)           # Opens a PDF
+  grid.table(t)              # Put table in PDF
+  dev.off()                  # Closes PDF
+  
+  # Export 
+  export_folder_contents_to_bucket(output_folder, bucket_name)
+}
+
+export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
+  
+  # Modify strings to so that gsutil will recognize them
+  output_path_str <- paste(output_directory, '/', sep='')
+  bucket_path_str <- paste('gs://', bucket_path, 
+                           '/$(date +"%d-%m-%Y-%H-%M-%S")/') # Add timestamp
+  
+  # Run gsutil command to to copy contents of output file to bucket
+  res <- sys::exec_wait('gsutil', 'cp', '--recursive', output_path, bucket_path)
 }
 ```
 
@@ -93,7 +111,7 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
               '--service-account=qa-qc-stage@nih-nci-dceg-connect-stg-5519.iam.gserviceaccount.com']
               
     images:
-     - 'gcr.io/nih-nci-dceg-connect-stg-5519/qaqc-api:$COMMIT_SHA'
+     - 'gcr.io/nih-nci-dceg-connect-stg-5519/test-api:$COMMIT_SHA'
 
 -   **Dockerfile** is a text file that contains all of commands that are needed to run your code, including installing software. This is used to create a docker image, or a lightweight software package that has all the dependencies required to run an application on any platform, including GCP Cloud Run. These commands are written in order.
     -   *`rocker/tidyverse`* is a collection of commonly used R data science packages
@@ -110,18 +128,20 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
     # Dockerfile
 
-    # Install packages
     FROM rocker/tidyverse:latest
-    RUN install2.r plumber bigrquery gridExtra
+    RUN install2.r rio plumber bigrquery
 
     # Copy R code to directory in instance
-    COPY ["./test_api.R", "./test_api.R"]
+    COPY ["./api.R", "./api.R"]
+
+    # Make output folder for R script to put data into
+    RUN mkdir -p /output 
 
     # Run R code
-    ENTRYPOINT ["R", "-e","pr <- plumber::plumb('test_api.R'); pr$run(host='0.0.0.0', port=as.numeric(Sys.getenv('PORT')))"]
+    ENTRYPOINT ["R", "-e","pr <- plumber::plumb('api.R'); pr$run(host='0.0.0.0', port=as.numeric(Sys.getenv('PORT')))"]
 
     # Copy output folder to gcp bucket **THIS NEEDS TO BE TESTED, NOT SURE IF IT SHOULD BE HERE.
-    RUN gsutil cp --recursive output/ gs://test_analytics_bucket_jp/$(date +"%d-%m-%Y-%H-%M-%S")/
+    # RUN gsutil cp --recursive output/ gs://test_analytics_bucket_jp/$(date +"%d-%m-%Y-%H-%M-%S")/
 
 ### 3. Schedule or Trigger the Cloud Run
 
