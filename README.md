@@ -195,7 +195,7 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
 ### 3. Schedule or Trigger the Cloud Run
 
--   ToDo
+-   ***ToDo***
 
     -   Notes:
 
@@ -219,11 +219,13 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
 ### 4. Push data from GCP Cloud Storage Bucket to Box
 
--   ToDo
+-   ***ToDo***
 
 -   Notes:
 
     -   Can move data from Google Drive to Box: <https://support.box.com/hc/en-us/articles/7900885766163-Migrating-content-from-Google-Drive-to-Box>
+    -   R package for interacting with Box:
+        -   <https://cran.r-project.org/web/packages/boxr/vignettes/boxr.html>
 
 ### Notes:
 

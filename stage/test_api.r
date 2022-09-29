@@ -10,8 +10,8 @@ library(dplyr)
 
 source("cloud_run_helper_functions.r")
 
-# Report package availability to text file
-check_package_availability("bigquery", "gridExtra", "plumber", "ggplot2", 
+# Report package availability to text file for debugging purposes
+check_package_availability("bigrquery", "gridExtra", "plumber", "ggplot2", 
                            "gridExtra", "scales", "dplyr")
 
 # #* heartbeat...for testing purposes only. Not required to run analysis.
