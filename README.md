@@ -21,7 +21,7 @@ This repo holds files requires to run a containerized R script, using docker, cl
 ```{r}
 # test_api.r
 
-# Note a lot of these packages are unused in this script, other than to test whether they can are successfully made available in Docker container
+# Note a lot of these packages are unused in this script, other than to test whether they are # successfully made available in Docker container
 library(bigrquery); 
 library(gridExtra)
 library(plumber)
