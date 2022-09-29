@@ -20,18 +20,30 @@ This repo holds files requires to run a containerized R script, using docker, cl
 
 ```{r}
 # test_api.r
-  
-library(bigrquery)
+
+# Note a lot of these packages are unused in this script, other than to test whether they can are successfully made available in Docker container
+library(bigrquery); 
 library(gridExtra)
+library(plumber)
+library(ggplot2)
+library(gridExtra)
+library(scales)
+library(dplyr)
 
-#* heartbeat...for testing purposes only. Not required to run analysis.
-#* @get /
-#* @post /
-function(){return("alive")}
+source("cloud_run_helper_functions.r")
 
-#* Runs STAGE test script
-#* @get /test_api
-function() {
+# Report package availability to text file for debugging purposes
+check_package_availability("bigrquery", "gridExtra", "plumber", "ggplot2", 
+                           "gridExtra", "scales", "dplyr")
+
+# #* heartbeat...for testing purposes only. Not required to run analysis.
+# #* @get /
+# #* @post /
+# function(){return("alive")}
+# 
+# #* Runs STAGE test script
+# #* @get /test_api
+#function() {
 
   # Change project and billing info as needed.
   project = "nih-nci-dceg-connect-stg-5519"  
@@ -42,35 +54,73 @@ function() {
   output_folder <- 'output' # Do not change this! Must correspond to Dockerfile.
   
   # Simple query.
-  queryrec <- "SELECT 117249500 AS RcrtUP_Age_v1r0 
+  query_rec <- "SELECT 117249500 AS RcrtUP_Age_v1r0 
                FROM `nih-nci-dceg-connect-prod-6d04.Connect.participants` 
                WHERE Connect_ID IS NOT NULL"
+  
   # BigQuery authorization. Should work smoothly on GCP without any inputs.
   bq_auth() 
+  
   # Download some data
+  rec_table <- bq_project_query(project, queryrec)
   rec_data <- bq_table_download(rec_table, bigint = "integer64")
   t <- head(rec_data) # Get just the top few lines of the table.
   
   # Write a table to pdf as an example "report". 
   # Must include path to output folder in file name
-  report_name = '/output/report_table.pdf'
+  report_name = './output/report_table.pdf'
   pdf(report_name)           # Opens a PDF
   grid.table(t)              # Put table in PDF
   dev.off()                  # Closes PDF
   
-  # Export 
+  # Export output folder to bucket
   export_folder_contents_to_bucket(output_folder, bucket_name)
-}
+# }
+```
 
+-   **cloud_run_helper_functions.r** contains helper functions used in test_api.r.
+    -   `export_folder_contents_to_bucket` uses `gsutil` to copy files from a local directory to GCP bucket.
+
+        -   input: `output_directory` is the directory holding the reporting output files to be copied
+
+        -   input: `bucket_path` is the path to the bucket where you would like to put the files
+
+    -   `check_package_availability` takes a list of R packages as inputs and checks whether they are available. Outputs to *output/package_availability.txt.* This is useful for debugging during a Cloud Run.
+
+```{r}
+# cloud_run_helper_functions.r
+
+# Helper functions for cloud run
+
+## Uses gsutil CLI command to copy files from directory to a GCP bucket.
 export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
   
   # Modify strings to so that gsutil will recognize them
   output_path_str <- paste(output_directory, '/', sep='')
   bucket_path_str <- paste('gs://', bucket_path, 
-                           '/$(date +"%d-%m-%Y-%H-%M-%S")/') # Add timestamp
+                           '/$(date +"%d-%m-%Y-%H-%M-%S")/', # Add timestamp
+                           sep = '') 
   
   # Run gsutil command to to copy contents of output file to bucket
-  res <- sys::exec_wait('gsutil', 'cp', '--recursive', output_path, bucket_path)
+  command = paste('gsutil', 'cp', '-R', 
+                  output_path_str, bucket_path_str, sep =' ')
+  system(command, intern=TRUE)
+}
+
+# Checks if packages are available and logs to text file for debugging cloud runs
+# and Docker setup. Takes package names as strings as inputs.
+check_package_availability <- function(...){
+  packages <- list(...)
+  file.create("./output/package_availability.txt")
+  for (package in packages){
+    if (package %in% rownames(installed.packages()) == TRUE) {
+      line_str <- paste(package, 'is available', sep =" ")
+      write(line_str, file = "./output/package_availability.txt", append = TRUE)
+    } else {
+      line_str <- paste(package, 'is not available', sep =" ")
+      write(line_str, file = "./output/package_availability.txt", append = TRUE)
+    }
+  }
 }
 ```
 

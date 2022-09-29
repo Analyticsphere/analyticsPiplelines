@@ -8,11 +8,11 @@ export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
   bucket_path_str <- paste('gs://', bucket_path, 
                            '/$(date +"%d-%m-%Y-%H-%M-%S")/', # Add timestamp
                            sep = '') 
-  print(output_path_str)
-  print(bucket_path_str)
   
   # Run gsutil command to to copy contents of output file to bucket
-  res <- sys::exec_wait('gsutil', 'cp', '-R', output_directory, bucket_path)
+  command = paste('gsutil', 'cp', '-R', 
+                  output_path_str, bucket_path_str, sep =' ')
+  system(command, intern=TRUE)
 }
 
 # Checks if packages are available and logs to text file for debugging cloud runs
@@ -23,10 +23,10 @@ check_package_availability <- function(...){
   for (package in packages){
     if (package %in% rownames(installed.packages()) == TRUE) {
       line_str <- paste(package, 'is available', sep =" ")
-      write(line, file = "/output/package_availability.txt", append = TRUE)
+      write(line_str, file = "./output/package_availability.txt", append = TRUE)
     } else {
       line_str <- paste(package, 'is not available', sep =" ")
-      write(line, file = "/output/package_availability.txt", append = TRUE)
+      write(line_str, file = "./output/package_availability.txt", append = TRUE)
     }
   }
 }
