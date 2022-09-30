@@ -47,7 +47,7 @@ function() {
   bq_auth() 
   
   # Download some data
-  rec_table <- bq_project_query(project, queryrec)
+  rec_table <- bq_project_query(project, query_rec)
   rec_data <- bq_table_download(rec_table, bigint = "integer64")
   t <- head(rec_data) # Get just the top few lines of the table.
   
