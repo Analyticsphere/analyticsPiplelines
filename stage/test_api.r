@@ -40,7 +40,7 @@ function() {
   
   # Simple query.
   query_rec <- "SELECT 117249500 AS RcrtUP_Age_v1r0 
-               FROM `nih-nci-dceg-connect-prod-6d04.Connect.participants` 
+               FROM `nih-nci-dceg-connect-stg-5519.Connect.participants` 
                WHERE Connect_ID IS NOT NULL"
   
   # BigQuery authorization. Should work smoothly on GCP without any inputs.
