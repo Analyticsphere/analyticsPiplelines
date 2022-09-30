@@ -7,6 +7,7 @@ library(ggplot2)
 library(gridExtra)
 library(scales)
 library(dplyr)
+library(boxr)
 
 source("cloud_run_helper_functions.r")
 
@@ -14,14 +15,14 @@ source("cloud_run_helper_functions.r")
 check_package_availability("bigrquery", "gridExtra", "plumber", "ggplot2", 
                            "gridExtra", "scales", "dplyr")
 
-# #* heartbeat...for testing purposes only. Not required to run analysis.
-# #* @get /
-# #* @post /
-# function(){return("alive")}
-# 
-# #* Runs STAGE test script
-# #* @get /test_api
-#function() {
+#* heartbeat...for testing purposes only. Not required to run analysis.
+#* @get /
+#* @post /
+function(){return("alive")}
+
+#* Runs STAGE test script
+#* @get /test_api
+function() {
 
   # Change project and billing info as needed.
   project = "nih-nci-dceg-connect-stg-5519"  
@@ -53,5 +54,5 @@ check_package_availability("bigrquery", "gridExtra", "plumber", "ggplot2",
   
   # Export output folder to bucket
   export_folder_contents_to_bucket(output_folder, bucket_name)
-# }
+}
 

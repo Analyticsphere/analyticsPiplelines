@@ -227,6 +227,10 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
     -   R package for interacting with Box:
         -   <https://cran.r-project.org/web/packages/boxr/vignettes/boxr.html>
 
+        -   Tutorial: <https://ijlyttle.github.io/boxr/articles/boxr.html#authorizing-from-a-remote-server>
+
+        -   Creating a folder with CLI: <https://developer.box.com/guides/cli/quick-start/build-commands-help/>
+
 ### Notes:
 
 It is also possible to do all of this using R libraries.

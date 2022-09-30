@@ -1,4 +1,6 @@
-## Helper functions for cloud run
+# cloud_run_helper_functions.r
+
+# Helper functions for cloud run
 
 ## Uses gsutil CLI command to copy files from directory to a GCP bucket.
 export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
@@ -28,5 +30,16 @@ check_package_availability <- function(...){
       line_str <- paste(package, 'is not available', sep =" ")
       write(line_str, file = "./output/package_availability.txt", append = TRUE)
     }
+  }
+}
+
+write_to_box <- function(id, secret) {
+  if (!require(boxr)) {
+    stop("boxr not installed")
+  } else {
+    print('boxr is installed')
+    box_auth(client_id = id, client_secret = secret)
+    box_setwd(175101221441)
+    #https://nih.app.box.com/folder/175101221441
   }
 }
