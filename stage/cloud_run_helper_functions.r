@@ -33,13 +33,14 @@ check_package_availability <- function(...){
   }
 }
 
+#TODO Complete write_to_box function including authentification
 write_to_box <- function(id, secret) {
   if (!require(boxr)) {
     stop("boxr not installed")
   } else {
     print('boxr is installed')
-    box_auth(client_id = id, client_secret = secret)
-    box_setwd(175101221441)
+    # box_auth(client_id = id, client_secret = secret)
+    # box_setwd(175101221441)
     #https://nih.app.box.com/folder/175101221441
   }
 }
