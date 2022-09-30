@@ -55,5 +55,7 @@ function() {
   
   # Export output folder to bucket
   export_folder_contents_to_bucket(output_folder, bucket_name)
+  
+  return("All done.")
 }
 
