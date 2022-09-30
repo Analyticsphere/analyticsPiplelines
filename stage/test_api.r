@@ -9,6 +9,9 @@ library(scales)
 library(dplyr)
 library(boxr)
 
+
+dir.create("output")
+
 source("cloud_run_helper_functions.r")
 
 # Report package availability to text file for debugging purposes
