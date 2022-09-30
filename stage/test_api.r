@@ -22,6 +22,7 @@ function(){return("alive")}
 
 #* Runs STAGE test script
 #* @get /test_api
+#* @post /test_api
 function() {
 
   # Change project and billing info as needed.
