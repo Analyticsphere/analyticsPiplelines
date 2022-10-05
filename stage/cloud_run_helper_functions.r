@@ -7,6 +7,7 @@ export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
   
   # Modify strings to so that gsutil will recognize them
   output_path_str <- paste(output_directory, '/', sep='')
+  time_stamp      <- timestamp
   bucket_path_str <- paste('gs://', bucket_path, 
                            '/$(date +"%d-%m-%Y-%H-%M-%S")/', # Add timestamp
                            sep = '') 
@@ -15,6 +16,8 @@ export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
   command = paste('gsutil', 'cp', '-R', 
                   output_path_str, bucket_path_str, sep =' ')
   system(command, intern=TRUE)
+  
+  return(bucket_path_str)
 }
 
 # Checks if packages are available and logs to text file for debugging cloud runs
