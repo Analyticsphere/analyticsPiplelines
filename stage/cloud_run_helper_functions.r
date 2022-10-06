@@ -3,13 +3,13 @@
 # Helper functions for cloud run
 
 ## Uses gsutil CLI command to copy files from directory to a GCP bucket.
-export_folder_contents_to_bucket <- function(output_directory, bucket_path) {
+export_folder_contents_to_bucket <- function(output_directory, 
+                                             bucket_path, 
+                                             time_stamp) {
   
   # Modify strings to so that gsutil will recognize them
   output_path_str <- paste(output_directory, '/', sep='')
-  time_stamp      <- timestamp
-  bucket_path_str <- paste('gs://', bucket_path, 
-                           '/$(date +"%d-%m-%Y-%H-%M-%S")/', # Add timestamp
+  bucket_path_str <- paste('gs://', bucket_path, '/report_', time_stamp, '/', 
                            sep = '') 
   
   # Run gsutil command to to copy contents of output file to bucket
@@ -36,14 +36,34 @@ check_package_availability <- function(...){
   }
 }
 
+
 #TODO Complete write_to_box function including authentification
-write_to_box <- function(id, secret) {
-  if (!require(boxr)) {
-    stop("boxr not installed")
-  } else {
-    print('boxr is installed')
-    # box_auth(client_id = id, client_secret = secret)
-    # box_setwd(175101221441)
-    #https://nih.app.box.com/folder/175101221441
+# Export data to Box
+export_folder_contents_to_box<- function(output_folder, box_folder,
+                                         time_stamp) {
+  
+  # Check if boxr is installed
+  if (!require(boxr)) {         
+    stop("boxr not installed")  
+  } else {  
+    print('boxr is installed')  
+    
+    # Authenticate user
+    print(Sys.getenv("BOX_CLIENT_ID"))
+    box_auth(client_id=Sys.getenv("BOX_CLIENT_ID"), 
+             client_secret=Sys.getenv("BOX_CLIENT_SECRET"),
+             interactive=FALSE, write.Renv=TRUE)
+    
+    # Go to desired directory and create new folder
+    box_setwd(box_folder)
+    box_dir_name = paste('report_', time_stamp, sep = '')
+    box_dir_create(dir_name, parent_dir_id = box_getwd())
+    
+    # Loop through files in output_folder and write them to box
+    files <- list.files(path=output_folder, full.names=TRUE, recursive=FALSE)
+    for (file in files){
+      f <- load(file)
+      box_write(f, file)
+    }
   }
 }

@@ -16,21 +16,12 @@ library(scales)
 library(dplyr)
 library(boxr)
 
-
-dir.create("output")
-
 source("cloud_run_helper_functions.r")
-
-# Report package availability to text file for debugging purposes
-check_package_availability("bigrquery", "gridExtra", "plumber", "ggplot2", 
-                           "gridExtra", "scales", "dplyr")
 
 #* heartbeat...for testing purposes only. Not required to run analysis.
 #* @get /
 #* @post /
 function(){return("alive")}
-
-
 
 #* Runs STAGE test script
 #* @get /test_api
@@ -43,7 +34,8 @@ function() {
   
   # Designate bucket name (bucket must exist in GCP project) 
   bucket_name   <- 'test_analytics_bucket_jp' 
-  output_folder <- 'output' # Do not change this! Must correspond to Dockerfile.
+  report_folder <- 'report' 
+  dir.create(report_folder)
   
   # Simple query.
   query_rec <- "SELECT 117249500 AS RcrtUP_Age_v1r0 
@@ -60,13 +52,21 @@ function() {
   
   # Write a table to pdf as an example "report". 
   # Must include path to output folder in file name
-  report_name <- './output/report_table.pdf'
-  pdf(report_name)           # Opens a PDF
+  report_name <- 'report_table.pdf'
+  #pdf_path    <- paste('./', report_folder, '/', report_name, sep = '') 
+  pdf_path    <- './report/report_table.pdf' 
+  pdf(pdf_path)              # Opens a PDF
   grid.table(t)              # Put table in PDF
   dev.off()                  # Closes PDF
   
-  # Export output folder to bucket
-  bucket_path <- export_folder_contents_to_bucket(output_folder, bucket_name)
+  # Export output folder to bucket and to Box
+  time_stamp  <- format(Sys.time(), "%m-%d-%Y-%H-%M-%S") # current date/time
+  # Example box folder: https://nih.app.box.com/folder/175101221441
+  box_folder  <- 175101221441 # number associated with box folder
+  bucket_path <- export_folder_contents_to_bucket(report_folder, bucket_name, 
+                                                  time_stamp)
+  box_path    <- export_folder_contents_to_box(report_folder, box_folder,
+                                               time_stamp)
   
   # Return a string for for API testing purposes
   ret_str <- paste("All done. Check", bucket_path, "for", report_name)
