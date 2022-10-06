@@ -36,8 +36,6 @@ check_package_availability <- function(...){
   }
 }
 
-
-#TODO Complete write_to_box function including authentification
 # Export data to Box
 export_folder_contents_to_box<- function(output_folder, box_folder,
                                          time_stamp) {
@@ -48,8 +46,10 @@ export_folder_contents_to_box<- function(output_folder, box_folder,
   } else {  
     print('boxr is installed')  
     
-    # Authenticate user
-    print(Sys.getenv("BOX_CLIENT_ID"))
+    # Authenticate Box user using client id and client secret
+    # These are stored in .Renviron file. Get these from Jake or Daniel.
+    # In Cloud Build/Run/Scheduler, these can be added as environment variables 
+    # in the UI.
     box_auth(client_id=Sys.getenv("BOX_CLIENT_ID"), 
              client_secret=Sys.getenv("BOX_CLIENT_SECRET"),
              interactive=FALSE, write.Renv=TRUE)
@@ -66,4 +66,6 @@ export_folder_contents_to_box<- function(output_folder, box_folder,
       box_write(f, file)
     }
   }
+  
+  return(box_dir_name)
 }
