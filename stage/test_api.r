@@ -63,9 +63,8 @@ function() {
   time_stamp  <- format(Sys.time(), "%m-%d-%Y-%H-%M-%S") # current date/time
   # Example box folder: https://nih.app.box.com/folder/175101221441
   box_folder  <- 175101221441 # number associated with box folder
-  bucket_path <- "lala"
-#   bucket_path <- export_folder_contents_to_bucket(report_folder, bucket_name, 
-#                                                   time_stamp)
+  bucket_path <- export_folder_contents_to_bucket(report_folder, bucket_name, 
+                                                  time_stamp)
 #   box_path    <- export_folder_contents_to_box(report_folder, box_folder,
 #                                                time_stamp)
   #token - token_fetch(app, scopes - c("https://www.googleapis.com/auth/cloud-platform"))
