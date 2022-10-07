@@ -67,6 +67,9 @@ function() {
 #                                                   time_stamp)
 #   box_path    <- export_folder_contents_to_box(report_folder, box_folder,
 #                                                time_stamp)
+  #token - token_fetch(app, scopes - c("https://www.googleapis.com/auth/cloud-platform"))
+  #gcs_auth(token = token)
+  #gcs_list _buckets(projectId = "nih-nci-dceg-druss")
   
   # Return a string for for API testing purposes
   ret_str <- paste("All done. Check", bucket_path, "for", report_name)
