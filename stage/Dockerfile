@@ -1,7 +1,7 @@
 # Dockerfile
 
 FROM rocker/tidyverse:latest
-RUN install2.r plumber bigrquery gridExtra scales boxr tools googleCloudStorageR
+RUN install2.r plumber bigrquery gridExtra scales boxr tools googleCloudStorageR gargle
 
 # Copy R code to directory in instance
 COPY ["./test_api.r", "./test_api.r"]

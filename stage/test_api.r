@@ -17,6 +17,7 @@ library(dplyr)
 library(boxr)
 library(tools)
 library(googleCloudStorageR)
+library(gargle)
 
 source("cloud_run_helper_functions.r")
 
