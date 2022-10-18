@@ -29,8 +29,8 @@ function(){return("alive")}
 function() {
 
   # Change project and billing info as needed.
-  project = "nih-nci-dceg-connect-stg-5519"  
-  billing = "nih-nci-dceg-connect-stg-5519"
+  project <- "nih-nci-dceg-connect-stg-5519"  
+  billing <- "nih-nci-dceg-connect-stg-5519"
   
   # Designate bucket name (bucket must exist in GCP project) 
   bucket_name   <- 'test_analytics_bucket_jp' 
@@ -53,12 +53,13 @@ function() {
   # Write a table to pdf as an example "report". 
   # Must include path to output folder in file name
   report_name <- 'report_table.pdf'
-  #pdf_path    <- paste('./', report_folder, '/', report_name, sep = '') 
+  #pdf_path   <- paste('./', report_folder, '/', report_name, sep = '') 
   pdf_path    <- './report/report_table.pdf' 
   pdf(pdf_path)              # Opens a PDF
   grid.table(t)              # Put table in PDF
   dev.off()                  # Closes PDF
   
+<<<<<<< HEAD
   # Export output folder to bucket and to Box
   time_stamp  <- format(Sys.time(), "%m-%d-%Y-%H-%M-%S") # current date/time
   # Example box folder: https://nih.app.box.com/folder/175101221441
@@ -70,6 +71,31 @@ function() {
   #token - token_fetch(app, scopes - c("https://www.googleapis.com/auth/cloud-platform"))
   #gcs_auth(token = token)
   #gcs_list _buckets(projectId = "nih-nci-dceg-druss")
+=======
+  # # Export output folder to bucket and to Box
+  # time_stamp  <- format(Sys.time(), "%m-%d-%Y-%H-%M-%S") # current date/time
+  # # Example box folder: https://nih.app.box.com/folder/175101221441
+  # box_folder  <- 175101221441 # number associated with box folder
+  # bucket_path <- export_folder_contents_to_bucket(report_folder, bucket_name, 
+  #                                                 time_stamp)
+  # box_path    <- export_folder_contents_to_box(report_folder, box_folder,
+  #                                              time_stamp)
+  
+  # GENERATE TEST FILE
+  file.create("testing_rec2box_pipeline.txt")
+  output_fid <- "testing_rec2box_pipeline.txt"
+  output_desc <- "testing testing testing"
+  
+  # Authenticate and write to Box, BOX_CLIENT_ID & BOX_CLIENT_SECRET are stored 
+  # as system variables
+  box_auth(client_id=Sys.getenv("BOX_CLIENT_ID"), 
+           client_secret=Sys.getenv("BOX_CLIENT_SECRET"),
+           interactive=FALSE, write.Renv=TRUE)
+  box_setwd(dir_id = 161836233301) 
+  box_write(object = recr_noinact_wl1,
+            filename = output_fid,
+            description = output_desc)
+>>>>>>> 1d35d6b (minor changes to test_api.r & README)
   
   # Return a string for for API testing purposes
   ret_str <- paste("All done. Check", bucket_path, "for", report_name)

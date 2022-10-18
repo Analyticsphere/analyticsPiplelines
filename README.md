@@ -1,6 +1,6 @@
 # Example R Analytics Pipeline:
 
-## using Plumber, Cloud Build, Cloud Run and Cloud Scheduler
+using Plumber, Cloud Build, Cloud Run and Cloud Scheduler
 
 This repo holds files required to run a containerized R script, using docker, cloud build and cloud run. It uses docker and yaml files based on Daniel Russ's CloudRun_QAQC example.
 
