@@ -14,6 +14,8 @@ This repo holds files required to run a containerized R script, using docker, cl
 
 4.  Push data from GCP Cloud Storage Bucket to Box
 
+    ![](images/pipeline-diagram.png)
+
 ### 1. Write R script as a plumber API
 
 -   **test_api.r** is a R file containing your plumber API and R function. Below is an example:
