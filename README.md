@@ -271,6 +271,48 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
         -   Creating a folder with CLI: <https://developer.box.com/guides/cli/quick-start/build-commands-help/>
 
+## Set up Trigger on Cloud Run
+
+Steps:
+
+1.  Navigate to **Cloud Build** using the search bar.
+
+2.  Click on the **Triggers** o-\> icon in the left panel.
+
+3.  Click **Connect Repository** and select the repository holds your code.
+
+4.  Click **CREATE TRIGGER**, and enter the following selections:
+
+    1.  In the **Name** text box, enter the name of your trigger, e.g., "Test-Reports-Api".
+
+    2.  Under **Region** dropdown, select `global (non-regional)`.
+
+    3.  Enter a **Description**.
+
+    4.  Under **Event**, select `Push to a branch`.
+
+    5.  Under **Source \> Repository**, select the repository you linked in the previous step, e.g., Analyticsphere/analyticsPipelines.
+
+    6.  Under **Source \> Branch**, select `^main$`.
+
+    7.  Under **Configuration \> Type**, select `Cloud Build configuration file (yaml or json)`.
+
+    8.  Under **Configuration \> Location**, select `Repository`.
+
+    9.  In the **Cloud Build configuration file location** text box, type the path to your cloudbuild.yaml file, e.g., "/stage/cloudbuild.yaml".
+
+    10. Leave all other options to defaults and click **Create**.
+
+5.  Make sure that your trigger appears in the list, e.g., Test-Report-API.
+
+    ![](images/coud-build-tutorial.png){width="640"}
+
+## Set up Cloud Run
+
+## Set up Cloud Scheduler
+
+## Set up Google Cloud Storage Bucket
+
 ### Notes:
 
 It is also possible to do all of this using R libraries. Daniel and Jake don't recommend it.
