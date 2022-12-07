@@ -6,7 +6,7 @@
 # team. It uses plumber to set up an API that can be called by Cloud Build/Run 
 # on GCP. This code that requires cloud_run_helper_functions.r is in the working
 # directory. 
-  
+#  
 library(bigrquery)
 library(gridExtra)
 library(plumber)
