@@ -22,7 +22,7 @@ This repo holds files required to run a containerized R script, using docker, cl
 
 ```{r}
 # test_api.r
-  
+ 
 library(bigrquery)
 library(gridExtra)
 library(plumber)
@@ -31,8 +31,11 @@ library(gridExtra)
 library(scales)
 library(dplyr)
 library(boxr)
+library(tools)
+library(googleCloudStorageR)
+library(gargle)
 
-source("cloud_run_helper_functions.r") # required
+source("cloud_run_helper_functions.r")
 
 #* heartbeat...for testing purposes only. Not required to run analysis.
 #* @get /
@@ -44,14 +47,11 @@ function(){return("alive")}
 #* @post /test_api
 function() {
 
-  # Change project and billing info as needed.
-  project = "nih-nci-dceg-connect-stg-5519"  
-  billing = "nih-nci-dceg-connect-stg-5519"
-  
-  # Designate bucket name (bucket must exist in GCP project) 
-  bucket_name   <- 'test_analytics_bucket_jp' 
-  report_folder <- 'report' 
-  dir.create(report_folder)
+  # Set parameters 
+  report_name <- 'report_table.pdf'
+  bucket      <- 'gs://test_analytics_bucket_jp' 
+  project     <- "nih-nci-dceg-connect-stg-5519"  
+  billing     <- project # Billing must be same as project
   
   # Simple query.
   query_rec <- "SELECT 117249500 AS RcrtUP_Age_v1r0 
@@ -67,28 +67,27 @@ function() {
   t <- head(rec_data) # Get just the top few lines of the table.
   
   # Write a table to pdf as an example "report". 
-  # Must include path to output folder in file name
-  report_name <- 'report_table.pdf'
-  #pdf_path    <- paste('./', report_folder, '/', report_name, sep = '') 
-  pdf_path    <- './report/report_table.pdf' 
-  pdf(pdf_path)              # Opens a PDF
-  grid.table(t)              # Put table in PDF
-  dev.off()                  # Closes PDF
+  # Add time stamp to report name
+  report_fid <- paste0(file_path_sans_ext(report_name),
+                       format(Sys.time(), "_%m_%d_%Y_%H_%M"),
+                       ".", file_ext(report_name))
+  pdf(report_fid) # Opens a PDF
+  grid.table(t)   # Put table in PDF
+  dev.off()       # Closes PDF
   
-  # Export output folder to bucket and to Box
-  time_stamp  <- format(Sys.time(), "%m-%d-%Y-%H-%M-%S") # current date/time
-  # Example box folder: https://nih.app.box.com/folder/175101221441
-  box_folder  <- 175101221441 # number associated with box folder
-  bucket_path <- export_folder_contents_to_bucket(report_folder, bucket_name, 
-                                                  time_stamp)
-  box_path    <- export_folder_contents_to_box(report_folder, box_folder,
-                                               time_stamp)
+  # Authenticate with Google Storage and write report file to bucket
+  scope <- c("https://www.googleapis.com/auth/cloud-platform")
+  token <- token_fetch(scopes=scope)
+  gcs_auth(token=token)
+  gcs_upload(report_fid, bucket=bucket, name=report_fid) 
   
   # Return a string for for API testing purposes
-  ret_str <- paste("All done. Check", bucket_path, "for", report_name)
+  ret_str <- paste("All done. Check", bucket, "for", report_fid)
   print(ret_str)
   return(ret_str) 
 }
+
+
 ```
 
 -   **cloud_run_helper_functions.r** contains helper functions used in test_api.r.
@@ -159,8 +158,10 @@ export_folder_contents_to_box<- function(output_folder, box_folder,
   } else {  
     print('boxr is installed')  
     
-    # Authenticate user
-    print(Sys.getenv("BOX_CLIENT_ID"))
+    # Authenticate Box user using client id and client secret
+    # These are stored in .Renviron file. Get these from Jake or Daniel.
+    # In Cloud Build/Run/Scheduler, these can be added as environment variables 
+    # in the UI.
     box_auth(client_id=Sys.getenv("BOX_CLIENT_ID"), 
              client_secret=Sys.getenv("BOX_CLIENT_SECRET"),
              interactive=FALSE, write.Renv=TRUE)
@@ -177,6 +178,8 @@ export_folder_contents_to_box<- function(output_folder, box_folder,
       box_write(f, file)
     }
   }
+  
+  return(box_dir_name)
 }
 ```
 
@@ -200,24 +203,21 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
 
      # Build the container image
      - name: 'gcr.io/cloud-builders/docker'
-       args: ['build','-t', 'gcr.io/nih-nci-dceg-connect-stg-5519/test-api:$COMMIT_SHA', '.']
+       args: ['build','-t', 'gcr.io/nih-nci-dceg-connect-stg-5519/test-reports-api:$COMMIT_SHA', '.']
        dir: 'stage'
        timeout: 1200s
        
      # Push the container image to Container Registry
      - name: 'gcr.io/cloud-builders/docker'
-       args: ['push', 'gcr.io/nih-nci-dceg-connect-stg-5519/test-api:$COMMIT_SHA']
+       args: ['push', 'gcr.io/nih-nci-dceg-connect-stg-5519/test-reports-api:$COMMIT_SHA']
        
      # Deploy container image to Cloud Run
      - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
        entrypoint: gcloud
-       args: ['run','deploy','qaqc-api',
-              '--image=gcr.io/nih-nci-dceg-connect-stg-5519/test-api:$COMMIT_SHA',
-              '--region=us-central1',
-              '--service-account=qa-qc-stage@nih-nci-dceg-connect-stg-5519.iam.gserviceaccount.com']
+       args: ['run','deploy','test-reports-api', '--image=gcr.io/nih-nci-dceg-connect-stg-5519/test-reports-api:$COMMIT_SHA', '--region=us-central1', '--service-account=qa-qc-stage@nih-nci-dceg-connect-stg-5519.iam.gserviceaccount.com']
               
     images:
-     - 'gcr.io/nih-nci-dceg-connect-stg-5519/test-api:$COMMIT_SHA'
+     - 'gcr.io/nih-nci-dceg-connect-stg-5519/test-reports-api:$COMMIT_SHA'
 
 -   **Dockerfile** is a text file that contains all of commands that are needed to run your code, including installing software. This is used to create a docker image, or a lightweight software package that has all the dependencies required to run an application on any platform, including GCP Cloud Run. These commands are written in order.
     -   *`rocker/tidyverse`* is a collection of commonly used R data science packages
@@ -233,7 +233,7 @@ Building a container image requires 2 files. A cloud build config file (ex, *clo
     # Dockerfile
 
     FROM rocker/tidyverse:latest
-    RUN install2.r plumber bigrquery gridExtra scales boxr
+    RUN install2.r plumber bigrquery gridExtra scales boxr tools googleCloudStorageR gargle
 
     # Copy R code to directory in instance
     COPY ["./test_api.r", "./test_api.r"]
