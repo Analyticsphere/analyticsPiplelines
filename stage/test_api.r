@@ -7,7 +7,7 @@
 # on GCP. This code that requires cloud_run_helper_functions.r is in the working
 # directory. 
 
-library(thisisafakelibrarytobreakmycloudrunfortesting)
+#library(thisisafakelibrarytobreakmycloudrunfortesting)
 library(bigrquery)
 library(gridExtra)
 library(plumber)
